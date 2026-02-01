@@ -248,7 +248,7 @@ const styles = StyleSheet.create({
   },
 });
 
-const InvoicePDF = ({ data, showInvoice, calculatedTotal }) => {
+const InvoicePDF = ({ data, showInvoice, showEmail, calculatedTotal }) => {
   return (
     <Document>
       <Page size="A4" style={styles.page}>
@@ -424,7 +424,7 @@ const InvoicePDF = ({ data, showInvoice, calculatedTotal }) => {
               <Text>{data.accountInfo.name}</Text>
             </View>
           </View>
-          <View style={styles.accountRowLast}>
+          <View style={showEmail ? styles.accountRow : styles.accountRowLast}>
             <View style={styles.accountLabel}>
               <Text>ID @</Text>
             </View>
@@ -432,6 +432,16 @@ const InvoicePDF = ({ data, showInvoice, calculatedTotal }) => {
               <Text>{data.accountInfo.id}</Text>
             </View>
           </View>
+          {showEmail && (
+            <View style={styles.accountRowLast}>
+              <View style={styles.accountLabel}>
+                <Text>メール</Text>
+              </View>
+              <View style={styles.accountValue}>
+                <Text>{data.accountInfo.email || ''}</Text>
+              </View>
+            </View>
+          )}
         </View>
       </Page>
     </Document>

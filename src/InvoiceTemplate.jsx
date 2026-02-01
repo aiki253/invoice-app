@@ -32,7 +32,8 @@ const DEFAULT_DATA = {
   ],
   accountInfo: {
     name: 'インスタアカウント-花子-',
-    id: 'ここにIDを入力'
+    id: 'ここにIDを入力',
+    email: 'example@email.com'
   }
 };
 
@@ -42,6 +43,11 @@ const InvoiceTemplate = () => {
   // ステート初期化：localStorageにデータがあればそれを使い、なければデフォルトを使う
   const [showInvoice, setShowInvoice] = useState(() => {
     const saved = localStorage.getItem('invoice_showReg');
+    return saved !== null ? JSON.parse(saved) : true;
+  });
+
+  const [showEmail, setShowEmail] = useState(() => {
+    const saved = localStorage.getItem('invoice_showEmail');
     return saved !== null ? JSON.parse(saved) : true;
   });
 
@@ -59,13 +65,19 @@ const InvoiceTemplate = () => {
     localStorage.setItem('invoice_showReg', JSON.stringify(showInvoice));
   }, [showInvoice]);
 
+  useEffect(() => {
+    localStorage.setItem('invoice_showEmail', JSON.stringify(showEmail));
+  }, [showEmail]);
+
   // 入力をリセットする機能
   const handleReset = () => {
     if (window.confirm('入力内容を初期状態に戻しますか？')) {
       setData(DEFAULT_DATA);
       setShowInvoice(true);
+      setShowEmail(true);
       localStorage.removeItem('invoice_data');
       localStorage.removeItem('invoice_showReg');
+      localStorage.removeItem('invoice_showEmail');
     }
   };
 
@@ -108,6 +120,7 @@ const InvoiceTemplate = () => {
       <InvoicePDF
         data={data}
         showInvoice={showInvoice}
+        showEmail={showEmail}
         calculatedTotal={calculatedTotal}
       />
     ).toBlob();
@@ -206,6 +219,15 @@ const InvoiceTemplate = () => {
                 className="w-5 h-5 md:w-4 md:h-4 text-blue-600 rounded focus:ring-blue-500 cursor-pointer"
               />
               <span className="text-xs md:text-sm font-medium text-gray-700">インボイス</span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer select-none bg-gray-50 px-2 md:px-3 py-2 md:py-2 rounded border border-gray-200 hover:bg-gray-100 transition min-h-[44px] md:min-h-0">
+              <input
+                type="checkbox"
+                checked={showEmail}
+                onChange={(e) => setShowEmail(e.target.checked)}
+                className="w-5 h-5 md:w-4 md:h-4 text-blue-600 rounded focus:ring-blue-500 cursor-pointer"
+              />
+              <span className="text-xs md:text-sm font-medium text-gray-700">メール</span>
             </label>
 
             <div className="flex gap-2">
@@ -349,10 +371,16 @@ const InvoiceTemplate = () => {
                <div className="w-20 md:w-24 bg-gray-50 py-2.5 px-2 border-r border-gray-400 text-xs flex items-center">アカウント名</div>
                <input value={data.accountInfo.name} onChange={(e) => handleAccountChange('name', e.target.value)} className="flex-1 py-2.5 px-2 outline-none text-xs md:text-sm min-h-[40px] md:min-h-0 leading-relaxed"/>
              </div>
-             <div className="flex items-center">
+             <div className={`flex items-center ${showEmail ? 'border-b border-gray-400' : ''}`}>
                <div className="w-20 md:w-24 bg-gray-50 py-2.5 px-2 border-r border-gray-400 text-xs flex items-center justify-center">ID @</div>
                <input value={data.accountInfo.id} onChange={(e) => handleAccountChange('id', e.target.value)} className="flex-1 py-2.5 px-2 outline-none text-xs md:text-sm min-h-[40px] md:min-h-0 leading-relaxed"/>
              </div>
+             {showEmail && (
+               <div className="flex items-center">
+                 <div className="w-20 md:w-24 bg-gray-50 py-2.5 px-2 border-r border-gray-400 text-xs flex items-center justify-center">メール</div>
+                 <input value={data.accountInfo.email || ''} onChange={(e) => handleAccountChange('email', e.target.value)} className="flex-1 py-2.5 px-2 outline-none text-xs md:text-sm min-h-[40px] md:min-h-0 leading-relaxed" placeholder="example@email.com"/>
+               </div>
+             )}
           </div>
         </div>
       </div>
