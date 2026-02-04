@@ -33,7 +33,7 @@ const DEFAULT_DATA = {
   accountInfo: {
     name: 'インスタアカウント-花子-',
     id: 'ここにIDを入力',
-    email: 'example@email.com'
+    phone: '090-1234-5678'
   }
 };
 
@@ -46,8 +46,8 @@ const InvoiceTemplate = () => {
     return saved !== null ? JSON.parse(saved) : true;
   });
 
-  const [showEmail, setShowEmail] = useState(() => {
-    const saved = localStorage.getItem('invoice_showEmail');
+  const [showPhone, setShowPhone] = useState(() => {
+    const saved = localStorage.getItem('invoice_showPhone');
     return saved !== null ? JSON.parse(saved) : true;
   });
 
@@ -66,26 +66,26 @@ const InvoiceTemplate = () => {
   }, [showInvoice]);
 
   useEffect(() => {
-    localStorage.setItem('invoice_showEmail', JSON.stringify(showEmail));
-  }, [showEmail]);
+    localStorage.setItem('invoice_showPhone', JSON.stringify(showPhone));
+  }, [showPhone]);
 
   // 入力をリセットする機能
   const handleReset = () => {
     if (window.confirm('入力内容を初期状態に戻しますか？')) {
       setData(DEFAULT_DATA);
       setShowInvoice(true);
-      setShowEmail(true);
+      setShowPhone(true);
       localStorage.removeItem('invoice_data');
       localStorage.removeItem('invoice_showReg');
-      localStorage.removeItem('invoice_showEmail');
+      localStorage.removeItem('invoice_showPhone');
     }
   };
 
   // 計算ロジック
   const calculatedTotal = data.items.reduce((acc, item) => {
-      const price = Number(item.price) || 0;
-      const qty = Number(item.quantity) || 0;
-      return acc + (price * qty);
+    const price = Number(item.price) || 0;
+    const qty = Number(item.quantity) || 0;
+    return acc + (price * qty);
   }, 0);
 
   // ハンドラー系
@@ -120,7 +120,7 @@ const InvoiceTemplate = () => {
       <InvoicePDF
         data={data}
         showInvoice={showInvoice}
-        showEmail={showEmail}
+        showPhone={showPhone}
         calculatedTotal={calculatedTotal}
       />
     ).toBlob();
@@ -206,7 +206,7 @@ const InvoiceTemplate = () => {
           <div className="flex items-center gap-2 md:gap-4">
             <h2 className="font-bold text-gray-700 text-base md:text-lg">請求書作成</h2>
             <button onClick={handleReset} className="text-xs md:text-sm flex items-center gap-1 text-gray-500 hover:text-red-500 border border-gray-300 px-2 md:px-3 py-1.5 md:py-2 rounded min-h-[44px] md:min-h-0">
-              <RotateCcw size={14}/><span className="hidden sm:inline">リセット</span>
+              <RotateCcw size={14} /><span className="hidden sm:inline">リセット</span>
             </button>
           </div>
 
@@ -223,11 +223,11 @@ const InvoiceTemplate = () => {
             <label className="flex items-center gap-2 cursor-pointer select-none bg-gray-50 px-2 md:px-3 py-2 md:py-2 rounded border border-gray-200 hover:bg-gray-100 transition min-h-[44px] md:min-h-0">
               <input
                 type="checkbox"
-                checked={showEmail}
-                onChange={(e) => setShowEmail(e.target.checked)}
+                checked={showPhone}
+                onChange={(e) => setShowPhone(e.target.checked)}
                 className="w-5 h-5 md:w-4 md:h-4 text-blue-600 rounded focus:ring-blue-500 cursor-pointer"
               />
-              <span className="text-xs md:text-sm font-medium text-gray-700">メール</span>
+              <span className="text-xs md:text-sm font-medium text-gray-700">電話番号</span>
             </label>
 
             <div className="flex gap-2">
@@ -246,144 +246,144 @@ const InvoiceTemplate = () => {
       <div className="p-2 md:p-8 flex justify-center">
         <div className="bg-white shadow-2xl w-full md:w-[210mm] relative overflow-hidden text-xs md:text-sm" ref={invoiceRef}>
           <div className="p-4 md:p-8 flex flex-col">
-          
-          {/* ヘッダー */}
-          <div className="flex flex-col md:flex-row justify-between items-start mb-3 gap-3">
-            <div className="bg-blue-600 text-white text-xl md:text-2xl font-bold px-3 md:px-4 py-1 inline-block">
-              請求書
+
+            {/* ヘッダー */}
+            <div className="flex flex-col md:flex-row justify-between items-start mb-3 gap-3">
+              <div className="bg-blue-600 text-white text-xl md:text-2xl font-bold px-3 md:px-4 py-1 inline-block">
+                請求書
+              </div>
+              <div className="border border-gray-400 flex text-xs md:text-sm items-center">
+                <div className="bg-gray-100 px-2 py-2.5 md:py-1.5 border-r border-gray-400 flex items-center min-w-[60px]">発行日</div>
+                <input
+                  value={data.issueDate}
+                  onChange={(e) => setData({ ...data, issueDate: e.target.value })}
+                  className="px-2 py-2.5 md:py-1.5 outline-none text-center w-full md:w-40 text-sm md:text-sm min-h-[44px] md:min-h-0 leading-relaxed"
+                />
+              </div>
             </div>
-            <div className="border border-gray-400 flex text-xs md:text-sm items-center">
-              <div className="bg-gray-100 px-2 py-2.5 md:py-1.5 border-r border-gray-400 flex items-center min-w-[60px]">発行日</div>
+
+            <div className="mb-3">
               <input
-                value={data.issueDate}
-                onChange={(e) => setData({...data, issueDate: e.target.value})}
-                className="px-2 py-2.5 md:py-1.5 outline-none text-center w-full md:w-40 text-sm md:text-sm min-h-[44px] md:min-h-0 leading-relaxed"
+                value={data.recipient}
+                onChange={(e) => setData({ ...data, recipient: e.target.value })}
+                className="text-base md:text-xl font-bold border-b border-gray-300 w-full outline-none py-2.5 md:py-1.5 min-h-[44px] md:min-h-0 leading-relaxed"
               />
             </div>
-          </div>
 
-          <div className="mb-3">
-            <input
-              value={data.recipient}
-              onChange={(e) => setData({...data, recipient: e.target.value})}
-              className="text-base md:text-xl font-bold border-b border-gray-300 w-full outline-none py-2.5 md:py-1.5 min-h-[44px] md:min-h-0 leading-relaxed"
-            />
-          </div>
-
-          {/* 氏名・住所 */}
-          <div className="border border-gray-400 w-full md:w-2/3 mb-2">
-            <div className="flex border-b border-gray-400 items-center">
-              <div className="w-14 md:w-16 bg-gray-50 py-2.5 px-2 border-r border-gray-400 font-bold flex items-center text-xs md:text-sm">氏名</div>
-              <input value={data.sender.name} onChange={(e) => handleSenderChange('name', e.target.value)} className="flex-1 py-2.5 px-2 outline-none font-bold text-base md:text-lg min-h-[44px] md:min-h-0 leading-relaxed"/>
-            </div>
-            <div className="flex border-b border-gray-400 items-center">
-              <div className="w-14 md:w-16 bg-gray-50 py-2.5 md:py-1.5 px-2 border-r border-gray-400 font-bold flex items-center text-xs">〒</div>
-              <input value={data.sender.zip} onChange={(e) => handleSenderChange('zip', e.target.value)} className="flex-1 py-2.5 md:py-1.5 px-2 outline-none text-sm md:text-base min-h-[44px] md:min-h-0 leading-relaxed"/>
-            </div>
-            <div className="flex items-center">
-              <div className="w-14 md:w-16 bg-gray-50 py-2.5 md:py-1.5 px-2 border-r border-gray-400 font-bold flex items-center text-xs md:text-sm">住所</div>
-              <textarea value={data.sender.address} onChange={(e) => handleSenderChange('address', e.target.value)} className="flex-1 py-2.5 md:py-1.5 px-2 outline-none resize-none h-20 md:h-12 leading-relaxed text-sm md:text-base"/>
-            </div>
-          </div>
-
-          <div className="mb-1 min-h-[24px] flex justify-end items-center">
-            {showInvoice && (
-              <div className="text-xs text-gray-500 flex flex-wrap items-center gap-1">
-                <span>登録番号:</span>
-                <input value={data.sender.regNumber} onChange={(e) => handleSenderChange('regNumber', e.target.value)} className="outline-none border-b border-gray-300 w-32 text-right min-h-[36px] md:min-h-0 py-1 px-1 leading-relaxed" placeholder="T1234567890123"/>
+            {/* 氏名・住所 */}
+            <div className="border border-gray-400 w-full md:w-2/3 mb-2">
+              <div className="flex border-b border-gray-400 items-center">
+                <div className="w-14 md:w-16 bg-gray-50 py-2.5 px-2 border-r border-gray-400 font-bold flex items-center text-xs md:text-sm">氏名</div>
+                <input value={data.sender.name} onChange={(e) => handleSenderChange('name', e.target.value)} className="flex-1 py-2.5 px-2 outline-none font-bold text-base md:text-lg min-h-[44px] md:min-h-0 leading-relaxed" />
               </div>
-            )}
-          </div>
-
-          {/* 金額 */}
-          <div className="mb-3">
-            <p className="mb-1.5 text-gray-700 text-xs md:text-sm leading-relaxed">下記の通り、ご請求申し上げます。</p>
-            <div className="border border-blue-600">
-              <div className="bg-blue-600 text-white text-center py-2 md:py-1.5 font-bold text-sm md:text-base flex items-center justify-center leading-relaxed">ご請求金額 (税込)</div>
-              <div className="text-center py-4 md:py-4 text-2xl md:text-4xl font-bold tracking-wider flex items-center justify-center leading-relaxed">¥{calculatedTotal.toLocaleString()}</div>
-            </div>
-          </div>
-
-          {/* 振込先 */}
-          <div className="flex border border-gray-400 mb-4 w-full md:w-3/4">
-            <div className="bg-blue-600 text-white w-12 md:w-16 flex items-center justify-center font-bold p-2 text-xs md:text-sm" style={{writingMode: 'vertical-rl'}}>振込先</div>
-            <div className="flex-1">
-              <div className="border-b border-gray-400 py-2.5 px-2 flex items-center">
-                <input value={data.bankInfo.bankName} onChange={(e) => handleBankChange('bankName', e.target.value)} className="w-full outline-none font-medium text-sm md:text-base min-h-[40px] md:min-h-0 leading-relaxed"/>
+              <div className="flex border-b border-gray-400 items-center">
+                <div className="w-14 md:w-16 bg-gray-50 py-2.5 md:py-1.5 px-2 border-r border-gray-400 font-bold flex items-center text-xs">〒</div>
+                <input value={data.sender.zip} onChange={(e) => handleSenderChange('zip', e.target.value)} className="flex-1 py-2.5 md:py-1.5 px-2 outline-none text-sm md:text-base min-h-[44px] md:min-h-0 leading-relaxed" />
               </div>
-              <div className="border-b border-gray-400 flex items-center">
-                <div className="w-14 md:w-16 border-r border-gray-400 py-2.5 px-2 bg-gray-50 text-xs flex items-center justify-center">普通</div>
-                <input value={data.bankInfo.number} onChange={(e) => handleBankChange('number', e.target.value)} className="w-full outline-none py-2.5 px-2 text-sm md:text-base min-h-[40px] md:min-h-0 leading-relaxed"/>
-              </div>
-              <div className="py-2.5 px-2 flex items-center">
-                <input value={data.bankInfo.holder} onChange={(e) => handleBankChange('holder', e.target.value)} className="w-full outline-none font-medium text-sm md:text-base min-h-[40px] md:min-h-0 leading-relaxed"/>
+              <div className="flex items-center">
+                <div className="w-14 md:w-16 bg-gray-50 py-2.5 md:py-1.5 px-2 border-r border-gray-400 font-bold flex items-center text-xs md:text-sm">住所</div>
+                <textarea value={data.sender.address} onChange={(e) => handleSenderChange('address', e.target.value)} className="flex-1 py-2.5 md:py-1.5 px-2 outline-none resize-none h-20 md:h-12 leading-relaxed text-sm md:text-base" />
               </div>
             </div>
-          </div>
 
-          {/* テーブル */}
-          <div className="overflow-x-auto mb-4">
-            <table className="w-full border-collapse border border-gray-400 text-xs md:text-sm">
-              <thead>
-                <tr className="bg-blue-600 text-white text-center">
-                  <th className="py-2.5 md:py-2 px-1 border border-white font-normal w-16 md:w-24 text-[10px] md:text-sm align-middle leading-relaxed">日付</th>
-                  <th className="py-2.5 md:py-2 px-1 border border-white font-normal text-[10px] md:text-sm align-middle leading-relaxed">内容</th>
-                  <th className="py-2.5 md:py-2 px-1 border border-white font-normal w-10 md:w-12 text-[10px] md:text-sm align-middle leading-relaxed">数量</th>
-                  <th className="py-2.5 md:py-2 px-1 border border-white font-normal w-10 md:w-12 text-[10px] md:text-sm align-middle leading-relaxed">単位</th>
-                  <th className="py-2.5 md:py-2 px-1 border border-white font-normal w-16 md:w-20 text-[10px] md:text-sm align-middle leading-relaxed">単価</th>
-                  {showInvoice && <th className="py-2.5 md:py-2 px-1 border border-white font-normal w-10 md:w-12 text-[10px] md:text-sm align-middle leading-relaxed">税率</th>}
-                  <th className="py-2.5 md:py-2 px-1 border border-white font-normal w-20 md:w-24 text-[10px] md:text-sm align-middle leading-relaxed">金額(税込)</th>
-                  <th className="p-0 w-6 md:w-8 hide-on-export bg-white border-none"></th>
-                </tr>
-              </thead>
-              <tbody>
-                {data.items.map((item) => (
-                  <tr key={item.id} className="text-center">
-                    <td className="border border-gray-400 p-0 align-middle"><input value={item.date} onChange={(e) => handleItemChange(item.id, 'date', e.target.value)} className="w-full py-2.5 md:py-2 px-1.5 outline-none text-center text-xs md:text-sm min-h-[44px] md:min-h-0 leading-relaxed"/></td>
-                    <td className="border border-gray-400 p-0 align-middle"><input value={item.content} onChange={(e) => handleItemChange(item.id, 'content', e.target.value)} className="w-full py-2.5 md:py-2 px-1.5 outline-none text-left text-xs md:text-sm min-h-[44px] md:min-h-0 leading-relaxed"/></td>
-                    <td className="border border-gray-400 p-0 align-middle"><input type="number" value={item.quantity === 0 ? '' : item.quantity} onChange={(e) => handleItemChange(item.id, 'quantity', e.target.value)} className="w-full py-2.5 md:py-2 px-1.5 outline-none text-right text-xs md:text-sm min-h-[44px] md:min-h-0 leading-relaxed"/></td>
-                    <td className="border border-gray-400 p-0 align-middle"><input value={item.unit} onChange={(e) => handleItemChange(item.id, 'unit', e.target.value)} className="w-full py-2.5 md:py-2 px-1.5 outline-none text-center text-xs md:text-sm min-h-[44px] md:min-h-0 leading-relaxed"/></td>
-                    <td className="border border-gray-400 p-0 align-middle"><input type="number" value={item.price === 0 ? '' : item.price} onChange={(e) => handleItemChange(item.id, 'price', e.target.value)} className="w-full py-2.5 md:py-2 px-1.5 outline-none text-right text-xs md:text-sm min-h-[44px] md:min-h-0 leading-relaxed"/></td>
-                    {showInvoice && <td className="border border-gray-400 p-0 align-middle"><div className="flex items-center justify-center h-full min-h-[44px] md:min-h-0 py-2"><span className="text-[10px] md:text-xs leading-relaxed">10%</span></div></td>}
-                    <td className="border border-gray-400 py-2.5 md:py-2 px-1.5 text-right text-xs md:text-sm leading-relaxed align-middle">{item.quantity && item.price ? `¥${(item.quantity * item.price).toLocaleString()}` : ''}</td>
-                    <td className="p-0 border-none hide-on-export">
-                      <button onClick={() => removeItem(item.id)} className="text-gray-300 hover:text-red-500 p-2 min-h-[40px] md:min-h-0 flex items-center justify-center"><Trash2 size={14}/></button>
-                    </td>
+            <div className="mb-1 min-h-[24px] flex justify-end items-center">
+              {showInvoice && (
+                <div className="text-xs text-gray-500 flex flex-wrap items-center gap-1">
+                  <span>登録番号:</span>
+                  <input value={data.sender.regNumber} onChange={(e) => handleSenderChange('regNumber', e.target.value)} className="outline-none border-b border-gray-300 w-32 text-right min-h-[36px] md:min-h-0 py-1 px-1 leading-relaxed" placeholder="T1234567890123" />
+                </div>
+              )}
+            </div>
+
+            {/* 金額 */}
+            <div className="mb-3">
+              <p className="mb-1.5 text-gray-700 text-xs md:text-sm leading-relaxed">下記の通り、ご請求申し上げます。</p>
+              <div className="border border-blue-600">
+                <div className="bg-blue-600 text-white text-center py-2 md:py-1.5 font-bold text-sm md:text-base flex items-center justify-center leading-relaxed">ご請求金額 (税込)</div>
+                <div className="text-center py-4 md:py-4 text-2xl md:text-4xl font-bold tracking-wider flex items-center justify-center leading-relaxed">¥{calculatedTotal.toLocaleString()}</div>
+              </div>
+            </div>
+
+            {/* 振込先 */}
+            <div className="flex border border-gray-400 mb-4 w-full md:w-3/4">
+              <div className="bg-blue-600 text-white w-12 md:w-16 flex items-center justify-center font-bold p-2 text-xs md:text-sm" style={{ writingMode: 'vertical-rl' }}>振込先</div>
+              <div className="flex-1">
+                <div className="border-b border-gray-400 py-2.5 px-2 flex items-center">
+                  <input value={data.bankInfo.bankName} onChange={(e) => handleBankChange('bankName', e.target.value)} className="w-full outline-none font-medium text-sm md:text-base min-h-[40px] md:min-h-0 leading-relaxed" />
+                </div>
+                <div className="border-b border-gray-400 flex items-center">
+                  <div className="w-14 md:w-16 border-r border-gray-400 py-2.5 px-2 bg-gray-50 text-xs flex items-center justify-center">普通</div>
+                  <input value={data.bankInfo.number} onChange={(e) => handleBankChange('number', e.target.value)} className="w-full outline-none py-2.5 px-2 text-sm md:text-base min-h-[40px] md:min-h-0 leading-relaxed" />
+                </div>
+                <div className="py-2.5 px-2 flex items-center">
+                  <input value={data.bankInfo.holder} onChange={(e) => handleBankChange('holder', e.target.value)} className="w-full outline-none font-medium text-sm md:text-base min-h-[40px] md:min-h-0 leading-relaxed" />
+                </div>
+              </div>
+            </div>
+
+            {/* テーブル */}
+            <div className="overflow-x-auto mb-4">
+              <table className="w-full border-collapse border border-gray-400 text-xs md:text-sm">
+                <thead>
+                  <tr className="bg-blue-600 text-white text-center">
+                    <th className="py-2.5 md:py-2 px-1 border border-white font-normal w-16 md:w-24 text-[10px] md:text-sm align-middle leading-relaxed">日付</th>
+                    <th className="py-2.5 md:py-2 px-1 border border-white font-normal text-[10px] md:text-sm align-middle leading-relaxed">内容</th>
+                    <th className="py-2.5 md:py-2 px-1 border border-white font-normal w-10 md:w-12 text-[10px] md:text-sm align-middle leading-relaxed">数量</th>
+                    <th className="py-2.5 md:py-2 px-1 border border-white font-normal w-10 md:w-12 text-[10px] md:text-sm align-middle leading-relaxed">単位</th>
+                    <th className="py-2.5 md:py-2 px-1 border border-white font-normal w-16 md:w-20 text-[10px] md:text-sm align-middle leading-relaxed">単価</th>
+                    {showInvoice && <th className="py-2.5 md:py-2 px-1 border border-white font-normal w-10 md:w-12 text-[10px] md:text-sm align-middle leading-relaxed">税率</th>}
+                    <th className="py-2.5 md:py-2 px-1 border border-white font-normal w-20 md:w-24 text-[10px] md:text-sm align-middle leading-relaxed">金額(税込)</th>
+                    <th className="p-0 w-6 md:w-8 hide-on-export bg-white border-none"></th>
                   </tr>
-                ))}
-                <tr>
-                  <td colSpan={showInvoice ? 6 : 5} className="border-none text-right p-1 md:p-2"></td>
-                  <td className="bg-blue-600 text-white text-center py-2.5 md:py-2 px-1.5 font-bold text-xs md:text-sm leading-relaxed align-middle">合計</td>
-                  <td className="border border-gray-400 py-2.5 md:py-2 px-1.5 text-right font-bold text-sm md:text-lg leading-relaxed align-middle">¥{calculatedTotal.toLocaleString()}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {data.items.map((item) => (
+                    <tr key={item.id} className="text-center">
+                      <td className="border border-gray-400 p-0 align-middle"><input value={item.date} onChange={(e) => handleItemChange(item.id, 'date', e.target.value)} className="w-full py-2.5 md:py-2 px-1.5 outline-none text-center text-xs md:text-sm min-h-[44px] md:min-h-0 leading-relaxed" /></td>
+                      <td className="border border-gray-400 p-0 align-middle"><input value={item.content} onChange={(e) => handleItemChange(item.id, 'content', e.target.value)} className="w-full py-2.5 md:py-2 px-1.5 outline-none text-left text-xs md:text-sm min-h-[44px] md:min-h-0 leading-relaxed" /></td>
+                      <td className="border border-gray-400 p-0 align-middle"><input type="number" value={item.quantity === 0 ? '' : item.quantity} onChange={(e) => handleItemChange(item.id, 'quantity', e.target.value)} className="w-full py-2.5 md:py-2 px-1.5 outline-none text-right text-xs md:text-sm min-h-[44px] md:min-h-0 leading-relaxed" /></td>
+                      <td className="border border-gray-400 p-0 align-middle"><input value={item.unit} onChange={(e) => handleItemChange(item.id, 'unit', e.target.value)} className="w-full py-2.5 md:py-2 px-1.5 outline-none text-center text-xs md:text-sm min-h-[44px] md:min-h-0 leading-relaxed" /></td>
+                      <td className="border border-gray-400 p-0 align-middle"><input type="number" value={item.price === 0 ? '' : item.price} onChange={(e) => handleItemChange(item.id, 'price', e.target.value)} className="w-full py-2.5 md:py-2 px-1.5 outline-none text-right text-xs md:text-sm min-h-[44px] md:min-h-0 leading-relaxed" /></td>
+                      {showInvoice && <td className="border border-gray-400 p-0 align-middle"><div className="flex items-center justify-center h-full min-h-[44px] md:min-h-0 py-2"><span className="text-[10px] md:text-xs leading-relaxed">10%</span></div></td>}
+                      <td className="border border-gray-400 py-2.5 md:py-2 px-1.5 text-right text-xs md:text-sm leading-relaxed align-middle">{item.quantity && item.price ? `¥${(item.quantity * item.price).toLocaleString()}` : ''}</td>
+                      <td className="p-0 border-none hide-on-export">
+                        <button onClick={() => removeItem(item.id)} className="text-gray-300 hover:text-red-500 p-2 min-h-[40px] md:min-h-0 flex items-center justify-center"><Trash2 size={14} /></button>
+                      </td>
+                    </tr>
+                  ))}
+                  <tr>
+                    <td colSpan={showInvoice ? 6 : 5} className="border-none text-right p-1 md:p-2"></td>
+                    <td className="bg-blue-600 text-white text-center py-2.5 md:py-2 px-1.5 font-bold text-xs md:text-sm leading-relaxed align-middle">合計</td>
+                    <td className="border border-gray-400 py-2.5 md:py-2 px-1.5 text-right font-bold text-sm md:text-lg leading-relaxed align-middle">¥{calculatedTotal.toLocaleString()}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
 
-          <div className="mb-6 hide-on-export">
-            <button onClick={addItem} className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-3 md:py-2 rounded-lg transition font-bold text-sm shadow-md min-h-[48px] md:min-h-0 w-full md:w-auto justify-center">
-              <Plus size={18} /> 行を追加
-            </button>
-          </div>
+            <div className="mb-6 hide-on-export">
+              <button onClick={addItem} className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-3 md:py-2 rounded-lg transition font-bold text-sm shadow-md min-h-[48px] md:min-h-0 w-full md:w-auto justify-center">
+                <Plus size={18} /> 行を追加
+              </button>
+            </div>
 
-          <div className="mt-auto mb-4 w-full md:w-1/2 border border-gray-400 text-xs md:text-sm">
-             <div className="flex border-b border-gray-400 items-center">
-               <div className="w-20 md:w-24 bg-gray-50 py-2.5 px-2 border-r border-gray-400 text-xs flex items-center">アカウント名</div>
-               <input value={data.accountInfo.name} onChange={(e) => handleAccountChange('name', e.target.value)} className="flex-1 py-2.5 px-2 outline-none text-xs md:text-sm min-h-[40px] md:min-h-0 leading-relaxed"/>
-             </div>
-             <div className={`flex items-center ${showEmail ? 'border-b border-gray-400' : ''}`}>
-               <div className="w-20 md:w-24 bg-gray-50 py-2.5 px-2 border-r border-gray-400 text-xs flex items-center justify-center">ID @</div>
-               <input value={data.accountInfo.id} onChange={(e) => handleAccountChange('id', e.target.value)} className="flex-1 py-2.5 px-2 outline-none text-xs md:text-sm min-h-[40px] md:min-h-0 leading-relaxed"/>
-             </div>
-             {showEmail && (
-               <div className="flex items-center">
-                 <div className="w-20 md:w-24 bg-gray-50 py-2.5 px-2 border-r border-gray-400 text-xs flex items-center justify-center">メール</div>
-                 <input value={data.accountInfo.email || ''} onChange={(e) => handleAccountChange('email', e.target.value)} className="flex-1 py-2.5 px-2 outline-none text-xs md:text-sm min-h-[40px] md:min-h-0 leading-relaxed" placeholder="example@email.com"/>
-               </div>
-             )}
+            <div className="mt-auto mb-4 w-full md:w-1/2 border border-gray-400 text-xs md:text-sm">
+              <div className="flex border-b border-gray-400 items-center">
+                <div className="w-20 md:w-24 bg-gray-50 py-2.5 px-2 border-r border-gray-400 text-xs flex items-center">アカウント名</div>
+                <input value={data.accountInfo.name} onChange={(e) => handleAccountChange('name', e.target.value)} className="flex-1 py-2.5 px-2 outline-none text-xs md:text-sm min-h-[40px] md:min-h-0 leading-relaxed" />
+              </div>
+              <div className={`flex items-center ${showPhone ? 'border-b border-gray-400' : ''}`}>
+                <div className="w-20 md:w-24 bg-gray-50 py-2.5 px-2 border-r border-gray-400 text-xs flex items-center justify-center">ID @</div>
+                <input value={data.accountInfo.id} onChange={(e) => handleAccountChange('id', e.target.value)} className="flex-1 py-2.5 px-2 outline-none text-xs md:text-sm min-h-[40px] md:min-h-0 leading-relaxed" />
+              </div>
+              {showPhone && (
+                <div className="flex items-center">
+                  <div className="w-20 md:w-24 bg-gray-50 py-2.5 px-2 border-r border-gray-400 text-xs flex items-center justify-center">電話番号</div>
+                  <input value={data.accountInfo.phone || ''} onChange={(e) => handleAccountChange('phone', e.target.value)} className="flex-1 py-2.5 px-2 outline-none text-xs md:text-sm min-h-[40px] md:min-h-0 leading-relaxed" placeholder="090-1234-5678" />
+                </div>
+              )}
+            </div>
           </div>
         </div>
-      </div>
       </div>
     </div>
   );
